@@ -4,9 +4,9 @@
 
 // import { GLTFLoader } from './node_modules/three/examples/jsm/loaders/GLTFLoader.js';
 
-import * as THREE from './libs/three/three.module.js';
-import { OrbitControls } from './libs/three/controls/OrbitControls.js';
-import { GLTFLoader } from './libs/three/loaders/GLTFLoader.js';
+import * as THREE from './lib/three/three.module.js';
+import { OrbitControls } from './lib/three/controls/OrbitControls.js';
+import { GLTFLoader } from './lib/three/loaders/GLTFLoader.js';
 
 
 // 1. Create Scene, Camera, Renderer
