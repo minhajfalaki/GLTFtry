@@ -1,8 +1,15 @@
-import * as THREE from './node_modules/three/build/three.module.js';
+// import * as THREE from './node_modules/three/build/three.module.js';
 
-import { OrbitControls } from './node_modules/three/examples/jsm/controls/OrbitControls.js';
+// import { OrbitControls } from './node_modules/three/examples/jsm/controls/OrbitControls.js';
 
-import { GLTFLoader } from './node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+// import { GLTFLoader } from './node_modules/three/examples/jsm/loaders/GLTFLoader.js';
+
+
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@latest/build/three.module.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@latest/examples/jsm/controls/OrbitControls.js';
+import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@latest/examples/jsm/loaders/GLTFLoader.js';
+
+
 
 
 // 1. Create Scene, Camera, Renderer
