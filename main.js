@@ -18,9 +18,6 @@ const mouse = new THREE.Vector2();
 
 // Use pointerdown and pointerup to detect true clicks vs drags
 let pointerDownPos = null;
-// rendererDom = document.body; // Temporary placeholder until renderer is created
-
-// We'll attach pointer events to the renderer DOM element after it's created
 
 // 2. Create Renderer
 const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -65,9 +62,6 @@ controls.update();
 controls.minDistance = 0.1;
 controls.maxDistance = 1000;
 
-// Optional: Reset OrbitControls internal state on pointerup (if needed)
-// We already handle target updates via our pointerup, so additional resets might be omitted.
-
 // 4. Add Lighting
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
@@ -76,17 +70,51 @@ mainLight.position.set(5, 10, 5);
 scene.add(mainLight);
 setupModelInteraction(scene, camera, renderer, controls);
 
-// 5. Load the GLTF Model
-const loader = new GLTFLoader();
+// 5. Create a LoadingManager to track progress of all assets
+const loadingOverlay = document.getElementById('loadingOverlay');
+const progressText = document.getElementById('progressText');
+const progressRingCircle = document.querySelector('.progress-ring__circle');
+
+const manager = new THREE.LoadingManager(
+  // onLoad
+  () => {
+    setProgress(100);
+    if (loadingOverlay) {
+      loadingOverlay.style.display = 'none';
+    }
+  },
+  // onProgress
+  (url, itemsLoaded, itemsTotal) => {
+    const percentComplete = Math.round((itemsLoaded / itemsTotal) * 100);
+    setProgress(percentComplete);
+  },
+  // onError
+  (url) => {
+    console.error('Error loading: ' + url);
+  }
+);
+
+// Function to update progress ring and text
+function setProgress(percent) {
+  // Clamp percentage between 0 and 100
+  percent = Math.min(Math.max(percent, 0), 100);
+  if (progressText) {
+    progressText.textContent = `${percent}%`;
+  }
+  if (progressRingCircle) {
+    const radius = progressRingCircle.r.baseVal.value; // should be 50
+    const circumference = 2 * Math.PI * radius; // ~314
+    const offset = circumference - (percent / 100) * circumference;
+    progressRingCircle.style.strokeDashoffset = offset;
+  }
+}
+
+// 6. Load the GLTF Model using the LoadingManager
+const loader = new GLTFLoader(manager);
 loader.load(
   'assets2/model.gltf',
   (gltf) => {
     scene.add(gltf.scene);
-    // Hide the loading overlay once the model is fully loaded
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    if (loadingOverlay) {
-      loadingOverlay.style.display = 'none';
-    }
     const box = new THREE.Box3().setFromObject(gltf.scene);
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
@@ -96,37 +124,21 @@ loader.load(
     camera.position.set(center.x - 2, center.y - 10 + maxDim / 100, cameraDistance / 100 - 20);
     camera.lookAt(center);
   },
-  // onProgress callback: update progress ring and percentage text
-  (event) => {
-    if (event.lengthComputable) {
-      const percentComplete = Math.round((event.loaded / event.total) * 100);
-      // Update the circular progress ring
-      const circle = document.querySelector('.progress-ring__circle');
-      const radius = circle.r.baseVal.value; // should be 50, based on your HTML
-      const circumference = 2 * Math.PI * radius;
-      const offset = circumference - (percentComplete / 100) * circumference;
-      circle.style.strokeDashoffset = offset;
-      // Update the text display
-      const progressText = document.getElementById('progressText');
-      if (progressText) {
-        progressText.textContent = `${percentComplete}%`;
-      }
-    }
-  },
+  // Remove the old onProgress callback since the manager handles it
+  undefined,
   (error) => {
     console.error('Error loading GLTF model:', error);
   }
 );
 
-
-// 6. Handle Window Resizing
+// 7. Handle Window Resizing
 window.addEventListener('resize', () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
 });
 
-// 7. Keyboard Control Setup
+// 8. Keyboard Control Setup
 // We'll move both the camera and the OrbitControls target together.
 const moveSpeed = 0.05;
 const keyState = {};
@@ -166,7 +178,7 @@ function updateCameraPosition() {
   }
 }
 
-// 8. Animation Loop
+// 9. Animation Loop
 function animate() {
   requestAnimationFrame(animate);
   updateCameraPosition();

@@ -1,13 +1,13 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>My GLTF Viewer</title>
   <style>
-    body { margin: 0; overflow: hidden; }
+    body { margin: 0; overflow: hidden; } /* Full-screen rendering */
 
-    /* Full-screen loading overlay */
+    /* Loading overlay styles */
     .loading-overlay {
       position: fixed;
       top: 0;
@@ -22,10 +22,10 @@
       z-index: 9999;
     }
 
-    /* Container for the ring + logo */
+    /* Container for the logo and progress ring */
     .logo-container {
       position: relative;
-      width: 120px;   /* Increased size to fit bigger ring */
+      width: 120px;   /* Container larger than logo to allow space for ring */
       height: 120px;
     }
 
@@ -37,19 +37,19 @@
       width: 120px;
       height: 120px;
       transform: rotate(-90deg); /* Start the ring at the top */
-      z-index: 1;                /* Ring behind the logo */
+      z-index: 1;
     }
     .progress-ring__circle {
       fill: transparent;
-      stroke: #3498db;   /* Ring color */
-      stroke-width: 8;   /* Thicker ring */
-      /* For r=50, circumference is ~314 */
+      stroke: #3498db;           /* Ring color */
+      stroke-width: 8;           /* Thicker ring */
+      /* For a circle with r=50, circumference is ~314 */
       stroke-dasharray: 314;
-      stroke-dashoffset: 314;  /* 0% progress initially */
+      stroke-dashoffset: 314;    /* 0% progress initially */
       transition: stroke-dashoffset 0.35s ease;
     }
 
-    /* The round logo (80×80) is centered within 120×120 */
+    /* The round logo (80×80) is centered within the container */
     .logo {
       position: absolute;
       top: 50%;
@@ -57,7 +57,7 @@
       width: 80px;
       height: 80px;
       transform: translate(-50%, -50%);
-      z-index: 2; /* Logo above the ring */
+      z-index: 2;
     }
 
     /* Percentage text below the container */
@@ -70,20 +70,18 @@
   </style>
 </head>
 <body>
+  <!-- Loading overlay with progress ring and logo -->
   <div id="loadingOverlay" class="loading-overlay">
     <div class="logo-container">
-      <!-- Larger ring around the logo -->
       <svg class="progress-ring" width="120" height="120">
-        <!-- r=50 => circle is 100px diameter + 8px stroke => fits in 120×120 -->
         <circle class="progress-ring__circle" r="50" cx="60" cy="60"></circle>
       </svg>
-      <!-- The 80×80 round logo in the center -->
       <img class="logo" src="images/logo_round.png" alt="Logo">
     </div>
-    <!-- Percentage text below -->
     <div id="progressText" class="progress-text">0%</div>
   </div>
 
+  <!-- Main script that includes Three.js setup, model loading, and progress updates -->
   <script type="module" src="main.js"></script>
 </body>
 </html>
