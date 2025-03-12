@@ -94,12 +94,13 @@ const manager = new THREE.LoadingManager(
   }
 );
 
-// Function to update progress ring and text
+let highProgressStart = null;
+
 function setProgress(percent) {
   // Clamp percentage between 0 and 100
   percent = Math.min(Math.max(percent, 0), 100);
   if (progressText) {
-    progressText.textContent = `${percent}%`;
+    progressText.textContent = `${Math.round(percent)}%`;
   }
   if (progressRingCircle) {
     const radius = progressRingCircle.r.baseVal.value; // should be 50
@@ -107,7 +108,27 @@ function setProgress(percent) {
     const offset = circumference - (percent / 100) * circumference;
     progressRingCircle.style.strokeDashoffset = offset;
   }
+  
+  // If progress is 98% or above, record when that started
+  if (percent >= 98) {
+    if (!highProgressStart) {
+      highProgressStart = Date.now();
+    } else {
+      const elapsed = Date.now() - highProgressStart;
+      if (elapsed > 10000) { // 10 seconds
+        // Force progress complete and hide overlay
+        console.warn("Forcing progress complete due to timeout.");
+        if (loadingOverlay) {
+          loadingOverlay.style.display = 'none';
+        }
+      }
+    }
+  } else {
+    // Reset if progress goes below 98%
+    highProgressStart = null;
+  }
 }
+
 
 // 6. Load the GLTF Model using the LoadingManager
 const loader = new GLTFLoader(manager);
