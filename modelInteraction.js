@@ -1,6 +1,6 @@
 // modelInteraction.js
-import * as THREE from './node_modules/three/build/three.module.js';
-import { TransformControls } from './node_modules/three/examples/jsm/controls/TransformControls.js';
+import * as THREE from '/lib/three/three.module.js';
+import { TransformControls } from '/lib/three/controls/TransformControls.js';
 import { createRedPointLight } from './lightcreator.js';
 
 export function setupModelInteraction(scene, camera, renderer, orbitControls) {
