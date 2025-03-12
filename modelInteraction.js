@@ -1,5 +1,5 @@
 // modelInteraction.js
-import * as THREE from './lib/three/three.module.js';
+import * as THREE from '/lib/three/three.module.js';
 import { TransformControls } from './lib/three/controls/TransformControls.js';
 import { createRedPointLight } from './lightcreator.js';
 
