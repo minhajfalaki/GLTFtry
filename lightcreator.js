@@ -1,5 +1,5 @@
 // lightcreator.js
-import * as THREE from 'https://minhajfalaki.github.io/GLTFtry/lib/three/three.module.js';
+import * as THREE from './lib/three/three.module.js';
 
 /**
  * Creates a red point light at the specified position.
