@@ -1,5 +1,5 @@
-import * as THREE from '../lib/three/three.module.js';
-import { OrbitControls } from '../lib/three/controls/OrbitControls.js';
+import * as THREE from './lib/three/three.module.js';
+import { OrbitControls } from './lib/three/controls/OrbitControls.js';
 import { GLTFLoader } from '../lib/three/loaders/GLTFLoader.js';
 import { setupModelInteraction } from './modelInteraction.js';
 
