@@ -2,10 +2,12 @@ import * as THREE from './lib/three/three.module.js';
 import { OrbitControls } from './lib/three/controls/OrbitControls.js';
 import { GLTFLoader } from './lib/three/loaders/GLTFLoader.js';
 import { setupModelInteraction } from './modelInteraction.js';
+import { MenuManager } from './js/menus/menuManager.js';
+import { setupCollisionInteraction } from './js/interaction/collisionInteraction.js';
 
 // 1. Create Scene, Camera, Renderer
 const scene = new THREE.Scene();
-const modelPosition = new THREE.Vector3(300, -100, 0); // Model’s actual position
+const modelPosition = new THREE.Vector3(300, -100, 0); // Model's actual position
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
 scene.background = new THREE.Color(0xffffff);
 camera.lookAt(modelPosition);
@@ -68,7 +70,15 @@ scene.add(ambientLight);
 const mainLight = new THREE.DirectionalLight(0xffffff, 1);
 mainLight.position.set(5, 10, 5);
 scene.add(mainLight);
-setupModelInteraction(scene, camera, renderer, controls);
+
+// Initialize MenuManager
+const menuManager = new MenuManager(scene, camera);
+
+// Setup model interaction
+setupModelInteraction(scene, camera, renderer, controls, menuManager);
+
+// Setup collision interaction
+setupCollisionInteraction(scene, camera, renderer, controls, menuManager);
 
 // 5. Create a LoadingManager to track progress of all assets
 const loadingOverlay = document.getElementById('loadingOverlay');

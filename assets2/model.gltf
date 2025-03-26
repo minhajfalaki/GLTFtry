@@ -17915,7 +17915,7 @@
 	],
 	"buffers": [
 		{
-			"uri": "https://jasirmodeltry.s3.eu-north-1.amazonaws.com/model.bin",
+			"uri": "model.bin",
 			"byteLength": 482164084
 		}
 	],
