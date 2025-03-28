@@ -22,6 +22,9 @@ export class MenuManager {
     this.collisionTransformControls = null; // Will be set by collisionInteraction.js
     this.history = null; // Will be set by modelInteraction.js
     this.collisionHistory = null; // Will be set by collisionInteraction.js
+    this.isPreviewMode = false;
+    this.hiddenHelpers = [];
+    this.hiddenButtons = [];
     this.setupMenus();
   }
 
@@ -51,6 +54,50 @@ export class MenuManager {
     addCollisionBtn.textContent = 'Add Collision';
     addCollisionBtn.onclick = () => this.handleCollisionSelection();
     menuButtons.appendChild(addCollisionBtn);
+
+    // Add Preview button
+    const previewBtn = document.createElement('button');
+    previewBtn.id = 'previewBtn';
+    previewBtn.textContent = 'Preview';
+    previewBtn.className = 'menu-button';
+    previewBtn.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 1000;
+      transition: background-color 0.3s;
+    `;
+    previewBtn.onclick = () => this.togglePreview();
+    document.body.appendChild(previewBtn);
+    this.previewBtn = previewBtn;
+
+    // Add Build button
+    const buildBtn = document.createElement('button');
+    buildBtn.id = 'buildBtn';
+    buildBtn.textContent = 'Build';
+    buildBtn.className = 'menu-button';
+    buildBtn.style.cssText = `
+      position: fixed;
+      bottom: 20px;
+      right: 140px;  // Position it to the left of the preview button
+      padding: 10px 20px;
+      background-color: #9C27B0;  // Changed to purple
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      z-index: 1000;
+      transition: background-color 0.3s;
+    `;
+    buildBtn.onclick = () => this.handleBuild();
+    document.body.appendChild(buildBtn);
+    this.buildBtn = buildBtn;
 
     // Create submenus
     this.createLightSubmenu();
@@ -236,7 +283,7 @@ export class MenuManager {
         return;
     }
 
-    // Add the furniture to the scene
+    // Add the helper (which contains the model) to the scene
     this.scene.add(furnitureSetup.helper);
     this.furniture.push(furnitureSetup);
 
@@ -333,5 +380,192 @@ export class MenuManager {
         this.scene.remove(gizmo);
       }
     }
+  }
+
+  togglePreview() {
+    if (!this.isPreviewMode) {
+      this.enterPreviewMode();
+    } else {
+      this.exitPreviewMode();
+    }
+  }
+
+  enterPreviewMode() {
+    this.isPreviewMode = true;
+    
+    // Store and hide all helpers
+    this.hiddenHelpers = [];
+    
+    // Hide light helpers
+    this.lights.forEach(light => {
+      if (light.helper.visible) {
+        light.helper.visible = false;
+        this.hiddenHelpers.push(light.helper);
+      }
+    });
+    
+    // Hide furniture helpers (only the helper sphere, not the model)
+    this.furniture.forEach(furniture => {
+      if (furniture.helper.visible) {
+        // Find the helper sphere (the wireframe sphere)
+        const helperSphere = furniture.helper.children.find(child => 
+          child.isMesh && child.geometry instanceof THREE.SphereGeometry
+        );
+        
+        if (helperSphere) {
+          // Store the helper sphere's visibility state
+          this.hiddenHelpers.push({
+            object: helperSphere,
+            visible: helperSphere.visible
+          });
+          // Hide only the helper sphere
+          helperSphere.visible = false;
+        }
+      }
+    });
+    
+    // Hide collision box helpers
+    this.collisionBoxes.forEach(box => {
+      if (box.collisionBox.visible) {
+        box.collisionBox.visible = false;
+        this.hiddenHelpers.push(box.collisionBox);
+      }
+    });
+
+    // Detach transform controls if any object is selected
+    if (this.transformControls) {
+      this.transformControls.detach();
+    }
+
+    // Hide transform buttons
+    const transformButtons = document.querySelector('.transform-buttons');
+    if (transformButtons) {
+      transformButtons.style.display = 'none';
+      this.hiddenButtons.push(transformButtons);
+    }
+
+    // Hide all menu buttons except preview
+    const menuButtons = document.querySelectorAll('.menu-button');
+    menuButtons.forEach(button => {
+      if (button !== this.previewBtn) {
+        button.style.display = 'none';
+        this.hiddenButtons.push(button);
+      }
+    });
+
+    // Update preview button
+    this.previewBtn.textContent = 'Cancel Preview';
+    this.previewBtn.style.backgroundColor = '#f44336';
+  }
+
+  exitPreviewMode() {
+    this.isPreviewMode = false;
+    
+    // Restore all helpers
+    this.hiddenHelpers.forEach(helper => {
+      if (typeof helper === 'object' && 'object' in helper) {
+        // This is a furniture helper with stored visibility state
+        helper.object.visible = helper.visible;
+      } else {
+        // This is a regular helper
+        helper.visible = true;
+      }
+    });
+    this.hiddenHelpers = [];
+
+    // Restore all buttons
+    this.hiddenButtons.forEach(button => {
+      button.style.display = '';
+    });
+    this.hiddenButtons = [];
+
+    // Restore preview button
+    this.previewBtn.textContent = 'Preview';
+    this.previewBtn.style.backgroundColor = '#4CAF50';
+  }
+
+  handleBuild() {
+    // Create confirmation dialog
+    const dialog = document.createElement('div');
+    dialog.style.cssText = `
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      z-index: 2000;
+      text-align: center;
+      min-width: 300px;
+    `;
+
+    const message = document.createElement('p');
+    message.textContent = 'This will create a view-only version of your scene. The process may take some time. Are you sure you want to continue?';
+    message.style.marginBottom = '20px';
+    dialog.appendChild(message);
+
+    const buttonContainer = document.createElement('div');
+    buttonContainer.style.cssText = `
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    `;
+
+    const yesButton = document.createElement('button');
+    yesButton.textContent = 'Yes';
+    yesButton.style.cssText = `
+      padding: 8px 20px;
+      background-color: #9C27B0;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    `;
+
+    const noButton = document.createElement('button');
+    noButton.textContent = 'No';
+    noButton.style.cssText = `
+      padding: 8px 20px;
+      background-color: #f44336;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    `;
+
+    buttonContainer.appendChild(yesButton);
+    buttonContainer.appendChild(noButton);
+    dialog.appendChild(buttonContainer);
+
+    // Add overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1999;
+    `;
+
+    // Add event listeners
+    yesButton.onclick = () => {
+      document.body.removeChild(dialog);
+      document.body.removeChild(overlay);
+      // Here we'll add the actual build functionality later
+      alert('Build process started!');
+    };
+
+    noButton.onclick = () => {
+      document.body.removeChild(dialog);
+      document.body.removeChild(overlay);
+    };
+
+    // Add to document
+    document.body.appendChild(overlay);
+    document.body.appendChild(dialog);
   }
 } 

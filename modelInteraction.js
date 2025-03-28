@@ -342,6 +342,11 @@ export function setupModelInteraction(scene, camera, renderer, orbitControls, me
 
   // Function to handle object selection
   function handleObjectSelection(event) {
+    // Skip selection if in preview mode
+    if (menuManager.isPreviewMode) {
+      return;
+    }
+
     updateMouse(event);
     raycaster.setFromCamera(mouse, camera);
     
