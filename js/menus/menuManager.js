@@ -77,28 +77,6 @@ export class MenuManager {
     document.body.appendChild(previewBtn);
     this.previewBtn = previewBtn;
 
-    // Add Build button
-    const buildBtn = document.createElement('button');
-    buildBtn.id = 'buildBtn';
-    buildBtn.textContent = 'Build';
-    buildBtn.className = 'menu-button';
-    buildBtn.style.cssText = `
-      position: fixed;
-      bottom: 20px;
-      right: 140px;  // Position it to the left of the preview button
-      padding: 10px 20px;
-      background-color: #9C27B0;  // Changed to purple
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      z-index: 1000;
-      transition: background-color 0.3s;
-    `;
-    buildBtn.onclick = () => this.handleBuild();
-    document.body.appendChild(buildBtn);
-    this.buildBtn = buildBtn;
-
     // Create submenus
     this.createLightSubmenu();
     this.createFurnitureSubmenu();
@@ -482,90 +460,5 @@ export class MenuManager {
     // Restore preview button
     this.previewBtn.textContent = 'Preview';
     this.previewBtn.style.backgroundColor = '#4CAF50';
-  }
-
-  handleBuild() {
-    // Create confirmation dialog
-    const dialog = document.createElement('div');
-    dialog.style.cssText = `
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-      z-index: 2000;
-      text-align: center;
-      min-width: 300px;
-    `;
-
-    const message = document.createElement('p');
-    message.textContent = 'This will create a view-only version of your scene. The process may take some time. Are you sure you want to continue?';
-    message.style.marginBottom = '20px';
-    dialog.appendChild(message);
-
-    const buttonContainer = document.createElement('div');
-    buttonContainer.style.cssText = `
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-    `;
-
-    const yesButton = document.createElement('button');
-    yesButton.textContent = 'Yes';
-    yesButton.style.cssText = `
-      padding: 8px 20px;
-      background-color: #9C27B0;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    `;
-
-    const noButton = document.createElement('button');
-    noButton.textContent = 'No';
-    noButton.style.cssText = `
-      padding: 8px 20px;
-      background-color: #f44336;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    `;
-
-    buttonContainer.appendChild(yesButton);
-    buttonContainer.appendChild(noButton);
-    dialog.appendChild(buttonContainer);
-
-    // Add overlay
-    const overlay = document.createElement('div');
-    overlay.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 1999;
-    `;
-
-    // Add event listeners
-    yesButton.onclick = () => {
-      document.body.removeChild(dialog);
-      document.body.removeChild(overlay);
-      // Here we'll add the actual build functionality later
-      alert('Build process started!');
-    };
-
-    noButton.onclick = () => {
-      document.body.removeChild(dialog);
-      document.body.removeChild(overlay);
-    };
-
-    // Add to document
-    document.body.appendChild(overlay);
-    document.body.appendChild(dialog);
   }
 } 

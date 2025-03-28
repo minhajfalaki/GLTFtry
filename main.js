@@ -13,7 +13,7 @@ scene.background = new THREE.Color(0xffffff);
 camera.lookAt(modelPosition);
 
 // We'll use this as a default target for keyboard control, if needed.
-const defaultTarget = new THREE.Vector3(300, -100,0);
+const defaultTarget = new THREE.Vector3(300, -100, 0);
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -152,7 +152,7 @@ loader.load(
     const maxDim = Math.max(size.x, size.y, size.z);
     const fov = camera.fov * (Math.PI / 180);
     let cameraDistance = Math.abs(maxDim / Math.sin(fov / 2));
-    camera.position.set(center.x - 2, center.y + maxDim / 100, cameraDistance / 100 - 20);
+    camera.position.set(center.x - 2, center.y - 10 + maxDim / 100, cameraDistance / 100 - 20);
     camera.lookAt(center);
   },
   // Remove the old onProgress callback since the manager handles it
