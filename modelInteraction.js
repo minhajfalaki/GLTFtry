@@ -2,6 +2,7 @@
 import * as THREE from './lib/three/three.module.js';
 import { TransformControls } from './lib/three/controls/TransformControls.js';
 import { createRedPointLight } from './lightcreator.js';
+import { createCollisionBox } from './js/loaders/collisionBox.js';
 
 export function setupModelInteraction(scene, camera, renderer, orbitControls, menuManager) {
   // Array to store all lights and their helpers
@@ -34,8 +35,20 @@ export function setupModelInteraction(scene, camera, renderer, orbitControls, me
         scale: furniture.helper.scale.clone(),
         helper: furniture.helper
       }));
+
+      // Save collision boxes state
+      const collisionState = menuManager.collisionBoxes.map(box => ({
+        type: 'collision',
+        position: box.collisionBox.position.clone(),
+        rotation: box.collisionBox.rotation.clone(),
+        scale: box.collisionBox.scale.clone(),
+        collisionBox: box.collisionBox,
+        width: box.width,
+        height: box.height,
+        depth: box.depth
+      }));
       
-      return [...lightsState, ...furnitureState];
+      return [...lightsState, ...furnitureState, ...collisionState];
     },
     
     // Push current state to history
@@ -93,10 +106,14 @@ export function setupModelInteraction(scene, camera, renderer, orbitControls, me
       menuManager.furniture.forEach(furniture => {
         scene.remove(furniture.helper);
       });
+      menuManager.collisionBoxes.forEach(box => {
+        scene.remove(box.collisionBox);
+      });
       
       // Clear arrays
       menuManager.lights = [];
       menuManager.furniture = [];
+      menuManager.collisionBoxes = [];
       
       // Apply new state
       state.forEach(item => {
@@ -113,6 +130,17 @@ export function setupModelInteraction(scene, camera, renderer, orbitControls, me
           item.helper.scale.copy(item.scale);
           scene.add(item.helper);
           menuManager.furniture.push({ helper: item.helper });
+        } else if (item.type === 'collision') {
+          item.collisionBox.position.copy(item.position);
+          item.collisionBox.rotation.copy(item.rotation);
+          item.collisionBox.scale.copy(item.scale);
+          scene.add(item.collisionBox);
+          menuManager.collisionBoxes.push({
+            collisionBox: item.collisionBox,
+            width: item.width,
+            height: item.height,
+            depth: item.depth
+          });
         }
       });
     }
@@ -143,11 +171,21 @@ export function setupModelInteraction(scene, camera, renderer, orbitControls, me
             scene.remove(menuManager.lights[lightIndex].helper);
             menuManager.lights.splice(lightIndex, 1);
           }
-        } else {
-          const furnitureIndex = menuManager.furniture.findIndex(f => f.helper === selectedObject);
-          if (furnitureIndex !== -1) {
-            scene.remove(menuManager.furniture[furnitureIndex].helper);
-            menuManager.furniture.splice(furnitureIndex, 1);
+        } else if (selectedObject.userData.isSelectable) {
+          // Check for collision box
+          const collisionIndex = menuManager.collisionBoxes.findIndex(box => 
+            box.collisionBox === selectedObject
+          );
+          if (collisionIndex !== -1) {
+            scene.remove(menuManager.collisionBoxes[collisionIndex].collisionBox);
+            menuManager.collisionBoxes.splice(collisionIndex, 1);
+          } else {
+            // Check for furniture
+            const furnitureIndex = menuManager.furniture.findIndex(f => f.helper === selectedObject);
+            if (furnitureIndex !== -1) {
+              scene.remove(menuManager.furniture[furnitureIndex].helper);
+              menuManager.furniture.splice(furnitureIndex, 1);
+            }
           }
         }
         
@@ -307,7 +345,7 @@ export function setupModelInteraction(scene, camera, renderer, orbitControls, me
     updateMouse(event);
     raycaster.setFromCamera(mouse, camera);
     
-    // Create an array of all selectable objects (lights and furniture)
+    // Create an array of all selectable objects (lights, furniture, and collision boxes)
     const selectableObjects = [];
     
     // Add all light helpers
@@ -319,6 +357,11 @@ export function setupModelInteraction(scene, camera, renderer, orbitControls, me
     menuManager.furniture.forEach(furnitureSetup => {
       selectableObjects.push(furnitureSetup.helper);
     });
+
+    // Add all collision boxes
+    menuManager.collisionBoxes.forEach(box => {
+      selectableObjects.push(box.collisionBox);
+    });
     
     // Check intersections with all selectable objects
     const intersects = raycaster.intersectObjects(selectableObjects, true);
@@ -326,11 +369,12 @@ export function setupModelInteraction(scene, camera, renderer, orbitControls, me
     if (intersects.length > 0) {
       const selectedObject = intersects[0].object;
       
-      // Find the topmost parent that is either a light helper or furniture helper
+      // Find the topmost parent that is either a light helper, furniture helper, or collision box
       let selectedHelper = selectedObject;
       while (selectedHelper && 
              !menuManager.lights.some(l => l.helper === selectedHelper) && 
-             !menuManager.furniture.some(f => f.helper === selectedHelper)) {
+             !menuManager.furniture.some(f => f.helper === selectedHelper) &&
+             !menuManager.collisionBoxes.some(box => box.collisionBox === selectedHelper)) {
         selectedHelper = selectedHelper.parent;
       }
       
@@ -344,6 +388,11 @@ export function setupModelInteraction(scene, camera, renderer, orbitControls, me
         const selectedFurniture = menuManager.furniture.find(f => f.helper === selectedHelper);
         if (selectedFurniture) {
           transformControls.attach(selectedFurniture.helper);
+        }
+        // If it's a collision box
+        const selectedCollision = menuManager.collisionBoxes.find(box => box.collisionBox === selectedHelper);
+        if (selectedCollision) {
+          transformControls.attach(selectedCollision.collisionBox);
         }
         
         // Add the transform gizmo to the scene

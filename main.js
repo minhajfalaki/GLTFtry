@@ -2,8 +2,8 @@ import * as THREE from './lib/three/three.module.js';
 import { OrbitControls } from './lib/three/controls/OrbitControls.js';
 import { GLTFLoader } from './lib/three/loaders/GLTFLoader.js';
 import { setupModelInteraction } from './modelInteraction.js';
+import { setupCameraCollision } from './js/interaction/cameraCollision.js';
 import { MenuManager } from './js/menus/menuManager.js';
-import { setupCollisionInteraction } from './js/interaction/collisionInteraction.js';
 
 // 1. Create Scene, Camera, Renderer
 const scene = new THREE.Scene();
@@ -77,8 +77,8 @@ const menuManager = new MenuManager(scene, camera);
 // Setup model interaction
 setupModelInteraction(scene, camera, renderer, controls, menuManager);
 
-// Setup collision interaction
-setupCollisionInteraction(scene, camera, renderer, controls, menuManager);
+// Setup camera collision
+setupCameraCollision(camera, controls, menuManager);
 
 // 5. Create a LoadingManager to track progress of all assets
 const loadingOverlay = document.getElementById('loadingOverlay');
