@@ -29,7 +29,7 @@ export function createChair(x, y, z) {
   const loadPromise = new Promise((resolve, reject) => {
     // Load the chair model
     fbxLoader.load(
-      'models/chair.fbx',
+      'models/chair.FBX',
       (object) => {
         console.log('Loaded FBX structure:', object);
         
