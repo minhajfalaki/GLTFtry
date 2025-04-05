@@ -254,20 +254,7 @@ function createBakerRenderer() {
  */
 function createBakingCamera(object) {
     progress.update('Setting up camera', object.name);
-    
-    // Ensure the object's world matrix is up to date
-    if (object.parent) {
-        object.parent.updateWorldMatrix(true, false);
-    }
-    object.updateWorldMatrix(false, true);
-    
-    // Create a temporary scene to ensure proper matrix updates
-    const tempScene = new THREE.Scene();
-    const tempObject = object.clone();
-    tempScene.add(tempObject);
-    tempScene.updateMatrixWorld(true);
-    
-    const box = new THREE.Box3().setFromObject(tempObject);
+    const box = new THREE.Box3().setFromObject(object);
     const size = box.getSize(new THREE.Vector3());
     
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
@@ -275,13 +262,6 @@ function createBakingCamera(object) {
     const distance = maxDim * 2;
     camera.position.set(distance, distance, distance);
     camera.lookAt(box.getCenter(new THREE.Vector3()));
-    
-    // Clean up
-    tempScene.remove(tempObject);
-    tempObject.geometry.dispose();
-    if (tempObject.material) {
-        tempObject.material.dispose();
-    }
     
     return camera;
 }
@@ -463,18 +443,12 @@ export async function bakeScene(scene) {
     console.log(`Found ${progress.totalObjects} objects to bake`);
     
     // Process each mesh in the scene
-    const processObject = async (object) => {
-        if (progress.isCancelled) return;
+    for (const object of scene.children) {
+        if (progress.isCancelled) break;
         
         if (object.isMesh) {
             try {
                 progress.update('Processing', object.name);
-                
-                // Ensure the object is properly initialized
-                if (object.parent) {
-                    object.parent.updateWorldMatrix(true, false);
-                }
-                object.updateWorldMatrix(false, true);
                 
                 // Calculate lightmap for this object
                 const lightmap = calculateLightmap(object, scene, baker);
@@ -488,15 +462,7 @@ export async function bakeScene(scene) {
                 console.error(`Error baking object ${object.name || 'Unnamed'}:`, error);
             }
         }
-        
-        // Process children recursively
-        for (const child of object.children) {
-            await processObject(child);
-        }
-    };
-    
-    // Start processing from the scene root
-    await processObject(scene);
+    }
     
     // Clean up
     baker.dispose();

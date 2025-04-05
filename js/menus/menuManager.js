@@ -9,7 +9,6 @@ import { createDiningTable } from '../loaders/diningTable.js';
 import { createDiningChair } from '../loaders/diningChair.js';
 import { createCollisionBox } from '../loaders/collisionBox.js';
 import { calculateSpawnPosition } from '../utils/spawner.js';
-import { buildScene, cancelBuild } from '../build/buildProcess.js';
 
 export class MenuManager {
   constructor(scene, camera) {
@@ -489,17 +488,17 @@ export class MenuManager {
     // Create confirmation dialog
     const dialog = document.createElement('div');
     dialog.style.cssText = `
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        z-index: 2000;
-        text-align: center;
-        min-width: 300px;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      z-index: 2000;
+      text-align: center;
+      min-width: 300px;
     `;
 
     const message = document.createElement('p');
@@ -509,31 +508,31 @@ export class MenuManager {
 
     const buttonContainer = document.createElement('div');
     buttonContainer.style.cssText = `
-        display: flex;
-        justify-content: center;
-        gap: 10px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
     `;
 
     const yesButton = document.createElement('button');
     yesButton.textContent = 'Yes';
     yesButton.style.cssText = `
-        padding: 8px 20px;
-        background-color: #9C27B0;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
+      padding: 8px 20px;
+      background-color: #9C27B0;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
     `;
 
     const noButton = document.createElement('button');
     noButton.textContent = 'No';
     noButton.style.cssText = `
-        padding: 8px 20px;
-        background-color: #f44336;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
+      padding: 8px 20px;
+      background-color: #f44336;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
     `;
 
     buttonContainer.appendChild(yesButton);
@@ -543,112 +542,26 @@ export class MenuManager {
     // Add overlay
     const overlay = document.createElement('div');
     overlay.style.cssText = `
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0,0,0,0.5);
-        z-index: 1999;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1999;
     `;
 
     // Add event listeners
-    yesButton.onclick = async () => {
-        document.body.removeChild(dialog);
-        document.body.removeChild(overlay);
-        
-        try {
-            // Start the build process
-            const presentationScene = await buildScene(this.scene);
-            
-            // Store the presentation scene
-            this.presentationScene = presentationScene;
-            
-            // Show success message
-            const successDialog = document.createElement('div');
-            successDialog.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: white;
-                padding: 20px;
-                border-radius: 8px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-                z-index: 2000;
-                text-align: center;
-                min-width: 300px;
-            `;
-
-            const successMessage = document.createElement('p');
-            successMessage.textContent = 'Build completed successfully! You can now switch to preview mode to view the optimized scene.';
-            successMessage.style.marginBottom = '20px';
-            successDialog.appendChild(successMessage);
-
-            const okButton = document.createElement('button');
-            okButton.textContent = 'OK';
-            okButton.style.cssText = `
-                padding: 8px 20px;
-                background-color: #4CAF50;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-            `;
-            okButton.onclick = () => {
-                document.body.removeChild(successDialog);
-                document.body.removeChild(overlay);
-            };
-
-            successDialog.appendChild(okButton);
-            document.body.appendChild(overlay);
-            document.body.appendChild(successDialog);
-        } catch (error) {
-            // Show error message
-            const errorDialog = document.createElement('div');
-            errorDialog.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: white;
-                padding: 20px;
-                border-radius: 8px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-                z-index: 2000;
-                text-align: center;
-                min-width: 300px;
-            `;
-
-            const errorMessage = document.createElement('p');
-            errorMessage.textContent = `Build failed: ${error.message}`;
-            errorMessage.style.marginBottom = '20px';
-            errorDialog.appendChild(errorMessage);
-
-            const okButton = document.createElement('button');
-            okButton.textContent = 'OK';
-            okButton.style.cssText = `
-                padding: 8px 20px;
-                background-color: #f44336;
-                color: white;
-                border: none;
-                border-radius: 4px;
-                cursor: pointer;
-            `;
-            okButton.onclick = () => {
-                document.body.removeChild(errorDialog);
-                document.body.removeChild(overlay);
-            };
-
-            errorDialog.appendChild(okButton);
-            document.body.appendChild(overlay);
-            document.body.appendChild(errorDialog);
-        }
+    yesButton.onclick = () => {
+      document.body.removeChild(dialog);
+      document.body.removeChild(overlay);
+      // Here we'll add the actual build functionality later
+      alert('Build process started!');
     };
 
     noButton.onclick = () => {
-        document.body.removeChild(dialog);
-        document.body.removeChild(overlay);
+      document.body.removeChild(dialog);
+      document.body.removeChild(overlay);
     };
 
     // Add to document
