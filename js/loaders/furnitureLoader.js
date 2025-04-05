@@ -1,7 +1,7 @@
 import * as THREE from '../../lib/three/three.module.js';
 import { FBXLoader } from '../../lib/three/loaders/FBXLoader.js';
 
-export function createFurniture(modelPath, x, y, z, scale = 1) {
+export function createFurniture(modelPath, x, y, z, scale = 0.001) {
   // Create a helper group
   const helper = new THREE.Group();
   const helperSphere = new THREE.Mesh(
@@ -42,7 +42,8 @@ export function createFurniture(modelPath, x, y, z, scale = 1) {
 
         // Set the model's position and scale
         object.position.set(0, 0, 0); // Position relative to helper
-        object.scale.set(scale, scale, scale);
+        object.scale.set(0.003, 0.003, 0.003);
+        console.log("Current scale:", object.scale);
 
         // Store references both ways for easier access
         helper.userData.model = object;
@@ -55,7 +56,7 @@ export function createFurniture(modelPath, x, y, z, scale = 1) {
         resolve({ model: object, helper });
       },
       (xhr) => {
-        console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        console.log((xhr.loaded / xhr.total * 100) + '% loadedss');
       },
       (error) => {
         console.error('Error loading model:', error);
