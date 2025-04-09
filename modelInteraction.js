@@ -1,7 +1,7 @@
 // modelInteraction.js
 import * as THREE from './lib/three/three.module.js';
 import { TransformControls } from './lib/three/controls/TransformControls.js';
-import { createRedPointLight } from './lightcreator.js';
+import { createPointLight } from './js/loaders/pointLight.js';
 import { createCollisionBox } from './js/loaders/collisionBox.js';
 
 export function setupModelInteraction(scene, camera, renderer, orbitControls, menuManager) {
@@ -244,7 +244,7 @@ export function setupModelInteraction(scene, camera, renderer, orbitControls, me
   
   // 1. Create the initial red point light and helper from lightcreator.js
   const initialLightPos = calculateLightPosition();
-  const { light, helper } = createRedPointLight(
+  const { light, helper } = createPointLight(
     initialLightPos.x,
     initialLightPos.y,
     initialLightPos.z
@@ -446,7 +446,7 @@ export function setupModelInteraction(scene, camera, renderer, orbitControls, me
   if (addLightBtn) {
     addLightBtn.addEventListener('click', () => {
       const newPosition = calculateLightPosition();
-      const { light: newLight, helper: newHelper } = createRedPointLight(
+      const { light: newLight, helper: newHelper } = createPointLight(
         newPosition.x,
         newPosition.y,
         newPosition.z

@@ -25,6 +25,7 @@ export class MenuManager {
     this.isPreviewMode = false;
     this.hiddenHelpers = [];
     this.hiddenButtons = [];
+    this.helpersNeedingUpdate = []; // Track helpers that need updates
     this.setupMenus();
   }
 
@@ -234,9 +235,13 @@ export class MenuManager {
         break;
       case 'Rectangular Light':
         lightSetup = createRectLight(position.x, position.y, position.z);
+        // Add to helpers needing update
+        this.helpersNeedingUpdate.push(lightSetup.helper);
         break;
       case 'Spot Light':
         lightSetup = createSpotLight(position.x, position.y, position.z);
+        // Add to helpers needing update
+        this.helpersNeedingUpdate.push(lightSetup.helper);
         // Add the target to the scene for spot lights
         if (lightSetup.target) {
           this.scene.add(lightSetup.target);

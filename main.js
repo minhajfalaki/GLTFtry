@@ -152,7 +152,7 @@ loader.load(
     const maxDim = Math.max(size.x, size.y, size.z);
     const fov = camera.fov * (Math.PI / 180);
     let cameraDistance = Math.abs(maxDim / Math.sin(fov / 2));
-    camera.position.set(center.x - 2, center.y - 10 + maxDim / 100, cameraDistance / 100 - 20);
+    camera.position.set(center.x - 2, center.y + maxDim / 100, cameraDistance / 100 - 20);
     camera.lookAt(center);
   },
   // Remove the old onProgress callback since the manager handles it
@@ -212,7 +212,17 @@ function updateCameraPosition() {
 // 9. Animation Loop
 function animate() {
   requestAnimationFrame(animate);
+  
+  // Update camera position based on keyboard input
   updateCameraPosition();
+  
+  // Update helpers that need it
+  menuManager.helpersNeedingUpdate.forEach(helper => {
+    if (helper && helper.update) {
+      helper.update();
+    }
+  });
+
   controls.update();
   renderer.render(scene, camera);
 }
